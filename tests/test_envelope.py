@@ -27,7 +27,9 @@ test_envelope
 This module contains test suite for the *Envelope* class.
 """
 
+import base64
 from email.header import Header
+import io
 import os
 import sys
 
@@ -35,6 +37,8 @@ from envelopes.envelope import Envelope, MessageEncodeError
 from envelopes.compat import encoded
 from lib.testing import BaseTestCase
 
+
+LOREM = 'Lorem ipsum'.encode('utf-8')
 
 class Test_Envelope(BaseTestCase):
     def setUp(self):
@@ -362,7 +366,14 @@ class Test_Envelope(BaseTestCase):
         _octet = self._tempfile(suffix='.txt')
         envelope.add_attachment(_octet, mimetype='application/octet-stream')
 
-        assert len(envelope._parts) == 7
+        # Attach from string
+        envelope.add_attachment('file1.txt', data=LOREM, mimetype='text/plain')
+
+        # Attach from stream
+        sio = io.BytesIO(LOREM)
+        envelope.add_attachment('file2.txt', data=sio, mimetype='text/plain')
+
+        assert len(envelope._parts) == 9
 
         assert envelope._parts[0][0] == 'text/plain'
         assert envelope._parts[1][0] == 'text/html'
@@ -387,6 +398,21 @@ class Test_Envelope(BaseTestCase):
         assert envelope._parts[6][0] == 'application/octet-stream'
         assert envelope._parts[6][1]['Content-Disposition'] ==\
             'attachment; filename="%s"' % os.path.basename(_octet)
+
+        assert envelope._parts[6][0] == 'application/octet-stream'
+        assert envelope._parts[6][1]['Content-Disposition'] ==\
+            'attachment; filename="%s"' % os.path.basename(_octet)
+
+        assert envelope._parts[7][0] == 'text/plain'
+        assert envelope._parts[7][1]['Content-Disposition'] ==\
+            'attachment; filename="%s"' % os.path.basename('file1.txt')
+        assert envelope._parts[7][1].get_payload(decode=True) == LOREM
+
+        assert envelope._parts[8][0] == 'text/plain'
+        assert envelope._parts[8][1]['Content-Disposition'] ==\
+            'attachment; filename="%s"' % os.path.basename('file2.txt')
+        assert envelope._parts[8][1].get_payload(decode=True) == LOREM
+
 
     def test_repr(self):
         msg = self._dummy_message()

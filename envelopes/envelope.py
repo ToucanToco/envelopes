@@ -27,6 +27,7 @@ envelopes.envelope
 This module contains the Envelope class.
 """
 
+import io
 import sys
 
 if sys.version_info[0] == 2:
@@ -295,10 +296,13 @@ class Envelope(object):
 
         return msg
 
-    def add_attachment(self, file_path, mimetype=None):
-        """Attaches a file located at *file_path* to the envelope. If
-        *mimetype* is not specified an attempt to guess it is made. If nothing
-        is guessed then `application/octet-stream` is used."""
+    def add_attachment(self, file_path, data=None, mimetype=None):
+        """Attaches a file to the envelope. If *data* is not specified, the
+        file is loaded from *file_path*. Otherwise *file_path* is used only for
+        name and mimetype guessing.
+        *data* might be a stream or a bytestring.
+        If *mimetype* is not specified an attempt to guess it is made.
+        If nothing is guessed then `application/octet-stream` is used."""
         if not mimetype:
             mimetype, _ = mimetypes.guess_type(file_path)
 
@@ -306,9 +310,8 @@ class Envelope(object):
             mimetype = 'application/octet-stream'
 
         type_maj, type_min = mimetype.split('/')
-        with open(file_path, 'rb') as fh:
-            part_data = fh.read()
 
+        def attach_data(part_data):
             part = MIMEBase(type_maj, type_min)
             part.set_payload(part_data)
             email_encoders.encode_base64(part)
@@ -318,6 +321,16 @@ class Envelope(object):
                             % part_filename)
 
             self._parts.append((mimetype, part))
+        if not data:
+            with open(file_path, 'rb') as fh:
+                part_data = fh.read()
+                attach_data(part_data)
+        elif isinstance(data, io.IOBase):
+            part_data = data.read()
+            attach_data(part_data)
+        else:
+            attach_data(data)
+
 
     def send(self, *args, **kwargs):
         """Sends the envelope using a freshly created SMTP connection. *args*
