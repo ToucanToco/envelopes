@@ -274,7 +274,7 @@ class Envelope(object):
     def to_mime_message(self):
         """Returns the envelope as
         :py:class:`email.mime.multipart.MIMEMultipart`."""
-        msg = MIMEMultipart('alternative')
+        msg = MIMEMultipart('mixed')
         msg['Subject'] = self._header(self._subject or '')
 
         msg['From'] = self._encoded(self._addrs_to_header([self._from]))
