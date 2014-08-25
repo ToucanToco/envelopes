@@ -27,7 +27,7 @@ envelopes
 Mailing for human beings.
 """
 
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 from .conn import *
