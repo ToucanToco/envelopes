@@ -288,7 +288,8 @@ class Envelope(object):
 
         for part in self._parts:
             type_maj, type_min = part[0].split('/')
-            if type_maj == 'text' and type_min in ('html', 'plain'):
+            if not isinstance(part[1], MIMEBase) and type_maj == 'text' and\
+               type_min in ('html', 'plain'):
                 msg.attach(MIMEText(part[1], type_min, self._charset))
             else:
                 msg.attach(part[1])
