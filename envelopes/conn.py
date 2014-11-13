@@ -92,6 +92,18 @@ class SMTP(object):
 
         return self._conn.sendmail(msg['From'], to_addrs, msg.as_string())
 
+    def quit(self):
+        """Terminate the SMTP session."""
+        if self._conn:
+            try:
+                self._conn.quit()
+            except (AttributeError, smtplib.SMTPServerDisconnected):
+                pass
+            else:
+                return True
+        # SMTP session is not ready, or already disconnected
+        return False
+
 
 class GMailSMTP(SMTP):
     """Subclass of :py:class:`SMTP` preconfigured for GMail SMTP."""
