@@ -1,8 +1,8 @@
 Envelopes
 =========
 
-.. image:: https://travis-ci.org/tomekwojcik/envelopes.png?branch=master
-    :target: https://travis-ci.org/tomekwojcik/envelopes
+.. image:: https://travis-ci.org/vamega/envelopes.svg?branch=master
+    :target: https://travis-ci.org/vamega/envelopes
 
 Mailing for human beings.
 
