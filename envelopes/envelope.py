@@ -249,7 +249,8 @@ class Envelope(object):
                         t = (m.group(2), m.group(1))
                         _addrs.append(self._addr_tuple_to_addr(t))
                     else:
-                        # What can we do? Just pass along what the user gave us and hope they did it right
+                        # What can we do? Just pass along what the user gave us
+                        # and hope they did it right
                         _addrs.append(self._encoded(addr))
             elif isinstance(addr, tuple):
                 _addrs.append(self._addr_tuple_to_addr(addr))
