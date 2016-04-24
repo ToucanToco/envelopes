@@ -19,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-
 """
 envelopes
 ---------
@@ -28,7 +27,6 @@ Mailing for human beings.
 """
 
 __version__ = '0.5'
-
 
 from .conn import *
 from .envelope import Envelope

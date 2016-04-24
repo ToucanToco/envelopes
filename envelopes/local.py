@@ -29,7 +29,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
 """
     werkzeug.local
     ~~~~~~~~~~~~~~
@@ -150,6 +149,7 @@ class LocalStack(object):
 
     def _set__ident_func__(self, value):  # noqa
         object.__setattr__(self._local, '__ident_func__', value)
+
     __ident_func__ = property(_get__ident_func__, _set__ident_func__)
     del _get__ident_func__, _set__ident_func__
 
@@ -159,6 +159,7 @@ class LocalStack(object):
             if rv is None:
                 raise RuntimeError('object unbound')
             return rv
+
         return LocalProxy(_lookup)
 
     def push(self, obj):
@@ -251,10 +252,8 @@ class LocalManager(object):
             release_local(local)
 
     def __repr__(self):
-        return '<%s storages: %d>' % (
-            self.__class__.__name__,
-            len(self.locals)
-        )
+        return '<%s storages: %d>' % (self.__class__.__name__,
+                                      len(self.locals))
 
 
 class LocalProxy(object):
@@ -382,7 +381,7 @@ class LocalProxy(object):
     __floordiv__ = lambda x, o: x._get_current_object() // o
     __mod__ = lambda x, o: x._get_current_object() % o
     __divmod__ = lambda x, o: x._get_current_object().__divmod__(o)
-    __pow__ = lambda x, o: x._get_current_object() ** o
+    __pow__ = lambda x, o: x._get_current_object()**o
     __lshift__ = lambda x, o: x._get_current_object() << o
     __rshift__ = lambda x, o: x._get_current_object() >> o
     __and__ = lambda x, o: x._get_current_object() & o

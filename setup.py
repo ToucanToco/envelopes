@@ -62,5 +62,16 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
         "Topic :: Software Development :: Libraries :: Python Modules"
-    ]
+    ],
+    extras_require={
+        "build": [
+            "yapf",
+            "pyflakes",
+            "nose",
+            "unittest2",
+        ],
+        "docs": [
+            "sphinx",
+        ]
+    },
 )

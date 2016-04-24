@@ -19,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-
 """
 lib.testing
 ===========
@@ -128,10 +127,15 @@ class MockSMTP(object):
         self.__append_call('login', [user, password], dict())
 
     def starttls(self, keyfile=None, certfile=None):
-        self.__append_call('starttls', [], dict(keyfile=keyfile,
-                                                certfile=certfile))
+        self.__append_call('starttls', [],
+                           dict(keyfile=keyfile,
+                                certfile=certfile))
 
-    def sendmail(self, from_addr, to_addrs, msg, mail_options=[],
+    def sendmail(self,
+                 from_addr,
+                 to_addrs,
+                 msg,
+                 mail_options=[],
                  rcpt_options=[]):
         _args = [from_addr, to_addrs, msg]
         _kwargs = dict(mail_options=mail_options, rcpt_options=rcpt_options)
@@ -175,14 +179,12 @@ class BaseTestCase(object):
             'html_body': HTML_BODY,
             'text_body': TEXT_BODY,
             'cc_addr': [
-                'cc1@example.com',
-                'Example CC2 <cc2@example.com>',
-                ('cc3@example.com', 'Example CC3')
+                'cc1@example.com', 'Example CC2 <cc2@example.com>', (
+                    'cc3@example.com', 'Example CC3')
             ],
             'bcc_addr': [
-                'bcc1@example.com',
-                'Example BCC2 <bcc2@example.com>',
-                ('bcc3@example.com', 'Example BCC3')
+                'bcc1@example.com', 'Example BCC2 <bcc2@example.com>', (
+                    'bcc3@example.com', 'Example BCC3')
             ],
             'headers': {
                 'Reply-To': 'reply-to@example.com',

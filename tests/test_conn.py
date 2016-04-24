@@ -19,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-
 """
 test_conn
 =========
@@ -37,8 +36,12 @@ class Test_SMTPConnection(BaseTestCase):
         self._patch_smtplib()
 
     def test_constructor(self):
-        conn = SMTP('localhost', port=587, login='spam',
-                    password='eggs', tls=True, timeout=10)
+        conn = SMTP('localhost',
+                    port=587,
+                    login='spam',
+                    password='eggs',
+                    tls=True,
+                    timeout=10)
 
         assert conn._conn is None
         assert conn._host == 'localhost'
@@ -49,8 +52,11 @@ class Test_SMTPConnection(BaseTestCase):
         assert conn._timeout == 10
 
     def test_constructor_all_kwargs(self):
-        conn = SMTP(host='localhost', port=587, login='spam',
-                    password='eggs', tls=True)
+        conn = SMTP(host='localhost',
+                    port=587,
+                    login='spam',
+                    password='eggs',
+                    tls=True)
 
         assert conn._conn is None
         assert conn._host == 'localhost'
@@ -137,5 +143,8 @@ class Test_SMTPConnection(BaseTestCase):
         call_args = conn._conn._call_stack['sendmail'][0][0]
         assert len(call_args) == 3
         assert call_args[0] == mime_msg['From']
-        assert call_args[1] == [envelope._addrs_to_header([addr]) for addr in envelope._to + envelope._cc + envelope._bcc]
+        assert call_args[1] == [
+            envelope._addrs_to_header([addr])
+            for addr in envelope._to + envelope._cc + envelope._bcc
+        ]
         assert call_args[2] != ''

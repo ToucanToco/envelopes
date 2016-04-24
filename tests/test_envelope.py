@@ -19,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-
 """
 test_envelope
 =============
@@ -37,8 +36,8 @@ from envelopes.envelope import Envelope, MessageEncodeError
 from envelopes.compat import encoded
 from lib.testing import BaseTestCase
 
-
 LOREM = 'Lorem ipsum'.encode('utf-8')
+
 
 class Test_Envelope(BaseTestCase):
     def setUp(self):
@@ -72,8 +71,8 @@ class Test_Envelope(BaseTestCase):
         addr = Envelope()._addr_tuple_to_addr(('test@example.com', 'Test'))
         assert addr == 'Test <test@example.com>'
 
-        addr = Envelope(charset='utf-8')._addr_tuple_to_addr((
-            'test@example.com', ))
+        addr = Envelope(
+            charset='utf-8')._addr_tuple_to_addr(('test@example.com', ))
         assert addr == 'test@example.com'
 
     def test_addrs_to_header(self):
@@ -84,11 +83,9 @@ class Test_Envelope(BaseTestCase):
         ]
 
         header = Envelope()._addrs_to_header(addrs)
-        ok_header = (
-            'test1@example.com,'
-            'Test2 <test2@example.com>,'
-            'Test3 <test3@example.com>'
-        )
+        ok_header = ('test1@example.com,'
+                     'Test2 <test2@example.com>,'
+                     'Test3 <test3@example.com>')
 
         assert header == ok_header
 
@@ -122,11 +119,9 @@ class Test_Envelope(BaseTestCase):
         assert mime_msg['To'] == 'Example To <to@example.com>'
         assert mime_msg['From'] == 'Example From <from@example.com>'
 
-        cc_header = (
-            'cc1@example.com,'
-            'Example CC2 <cc2@example.com>,'
-            'Example CC3 <cc3@example.com>'
-        )
+        cc_header = ('cc1@example.com,'
+                     'Example CC2 <cc2@example.com>,'
+                     'Example CC3 <cc3@example.com>')
         assert mime_msg['CC'] == cc_header
         assert 'BCC' not in mime_msg
 
@@ -138,16 +133,17 @@ class Test_Envelope(BaseTestCase):
         text_part, html_part = mime_msg_parts[1:]
 
         assert text_part.get_content_type() == 'text/plain'
-        assert text_part.get_payload(decode=True) == msg['text_body'].encode('utf-8')
+        assert text_part.get_payload(
+            decode=True) == msg['text_body'].encode('utf-8')
 
         assert html_part.get_content_type() == 'text/html'
-        assert html_part.get_payload(decode=True) == msg['html_body'].encode('utf-8')
+        assert html_part.get_payload(
+            decode=True) == msg['html_body'].encode('utf-8')
 
     def test_to_mime_message_with_many_to_addresses(self):
         msg = self._dummy_message()
         msg['to_addr'] = [
-            'to1@example.com',
-            'Example To2 <to2@example.com>',
+            'to1@example.com', 'Example To2 <to2@example.com>',
             ('to3@example.com', 'Example To3')
         ]
         envelope = Envelope(**msg)
@@ -155,11 +151,9 @@ class Test_Envelope(BaseTestCase):
         mime_msg = envelope.to_mime_message()
         assert mime_msg is not None
 
-        to_header = (
-            'to1@example.com,'
-            'Example To2 <to2@example.com>,'
-            'Example To3 <to3@example.com>'
-        )
+        to_header = ('to1@example.com,'
+                     'Example To2 <to2@example.com>,'
+                     'Example To3 <to3@example.com>')
         assert mime_msg['To'] == to_header
 
     def test_to_mime_message_with_no_data(self):
@@ -206,32 +200,36 @@ class Test_Envelope(BaseTestCase):
         assert mime_msg is not None
 
         assert mime_msg['Subject'] == Header(msg['subject'], 'utf-8').encode()
-        assert mime_msg['To'] == enc_addr_header(u'ęóąśłżźćń', '<to@example.com>')
-        assert mime_msg['From'] == enc_addr_header(u'ęóąśłżźćń', '<from@example.com>')
+        assert mime_msg['To'] == enc_addr_header(u'ęóąśłżźćń',
+                                                 '<to@example.com>')
+        assert mime_msg['From'] == enc_addr_header(u'ęóąśłżźćń',
+                                                   '<from@example.com>')
 
-        assert mime_msg['CC'] == enc_addr_header(u'ęóąśłżźćń', '<cc@example.com>')
+        assert mime_msg['CC'] == enc_addr_header(u'ęóąśłżźćń',
+                                                 '<cc@example.com>')
 
         assert 'BCC' not in mime_msg
 
-        assert mime_msg['X-Test'] == Header(msg['headers']['X-Test'], 'utf-8').encode()
+        assert mime_msg['X-Test'] == Header(msg['headers']['X-Test'],
+                                            'utf-8').encode()
 
         mime_msg_parts = [part for part in mime_msg.walk()]
         assert len(mime_msg_parts) == 3
         text_part, html_part = mime_msg_parts[1:]
 
         assert text_part.get_content_type() == 'text/plain'
-        assert text_part.get_payload(decode=True) == msg['text_body'].encode('utf-8')
+        assert text_part.get_payload(
+            decode=True) == msg['text_body'].encode('utf-8')
 
         assert html_part.get_content_type() == 'text/html'
-        assert html_part.get_payload(decode=True) == msg['html_body'].encode('utf-8')
+        assert html_part.get_payload(
+            decode=True) == msg['html_body'].encode('utf-8')
 
     def test_send(self):
-        envelope = Envelope(
-            from_addr='spam@example.com',
-            to_addr='eggs@example.com',
-            subject='Testing envelopes!',
-            text_body='Just a testy test.'
-        )
+        envelope = Envelope(from_addr='spam@example.com',
+                            to_addr='eggs@example.com',
+                            subject='Testing envelopes!',
+                            text_body='Just a testy test.')
 
         conn, result = envelope.send(host='localhost')
         assert conn._conn is not None
@@ -413,7 +411,6 @@ class Test_Envelope(BaseTestCase):
             'attachment; filename="%s"' % os.path.basename('file2.txt')
         assert envelope._parts[8][1].get_payload(decode=True) == LOREM
 
-
     def test_repr(self):
         msg = self._dummy_message()
         envelope = Envelope(**msg)
@@ -421,5 +418,4 @@ class Test_Envelope(BaseTestCase):
         assert envelope.__repr__() == (
             u"""<Envelope from="Example From <from@example.com>" """
             u"""to="Example To <to@example.com>" """
-            u"""subject="I'm a helicopter!">"""
-        )
+            u"""subject="I'm a helicopter!">""")

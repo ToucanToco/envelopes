@@ -28,7 +28,6 @@ import envelopes.connstack
 from flask import Flask, jsonify
 import os
 
-
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
@@ -48,17 +47,16 @@ def app_after_request(response):
 
 @app.route('/mail', methods=['POST'])
 def post_mail():
-    envelope = Envelope(
-        from_addr='%s@localhost' % os.getlogin(),
-        to_addr='%s@localhost' % os.getlogin(),
-        subject='Envelopes in Flask demo',
-        text_body="I'm a helicopter!"
-    )
+    envelope = Envelope(from_addr='%s@localhost' % os.getlogin(),
+                        to_addr='%s@localhost' % os.getlogin(),
+                        subject='Envelopes in Flask demo',
+                        text_body="I'm a helicopter!")
 
     smtp = envelopes.connstack.get_current_connection()
     smtp.send(envelope)
 
     return jsonify(dict(status='ok'))
+
 
 if __name__ == '__main__':
     app.run()

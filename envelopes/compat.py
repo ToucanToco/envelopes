@@ -22,6 +22,7 @@
 
 import sys
 
+
 def encoded(_str, coding):
     if sys.version_info[0] == 3:
         return _str

@@ -19,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-
 """
 envelopes.envelope
 ==================
@@ -39,9 +38,9 @@ elif sys.version_info[0] == 3:
     def unicode(_str, _charset):
         return str(_str.encode(_charset), _charset)
 else:
-    raise RuntimeError('Unsupported Python version: %d.%d.%d' % (
-        sys.version_info[0], sys.version_info[1], sys.version_info[2]
-    ))
+    raise RuntimeError('Unsupported Python version: %d.%d.%d' %
+                       (sys.version_info[0], sys.version_info[1],
+                        sys.version_info[2]))
 
 from email.header import Header
 from email.mime.base import MIMEBase
@@ -60,6 +59,7 @@ from .compat import encoded
 
 class MessageEncodeError(Exception):
     pass
+
 
 class Envelope(object):
     """
@@ -90,9 +90,16 @@ class Envelope(object):
     ADDR_FORMAT = '%s <%s>'
     ADDR_REGEXP = re.compile(r'^(.*) <([^@]+@[^@]+)>$')
 
-    def __init__(self, to_addr=None, from_addr=None, subject=None,
-                 html_body=None, text_body=None, cc_addr=None, bcc_addr=None,
-                 headers=None, charset='utf-8'):
+    def __init__(self,
+                 to_addr=None,
+                 from_addr=None,
+                 subject=None,
+                 html_body=None,
+                 text_body=None,
+                 cc_addr=None,
+                 bcc_addr=None,
+                 headers=None,
+                 charset='utf-8'):
         if to_addr:
             if isinstance(to_addr, list):
                 self._to = to_addr
@@ -139,9 +146,7 @@ class Envelope(object):
     def __repr__(self):
         return u'<Envelope from="%s" to="%s" subject="%s">' % (
             self._addrs_to_header([self._from]),
-            self._addrs_to_header(self._to),
-            self._subject
-        )
+            self._addrs_to_header(self._to), self._subject)
 
     @property
     def to_addr(self):
@@ -205,10 +210,8 @@ class Envelope(object):
         addr = ''
 
         if len(addr_tuple) == 2 and addr_tuple[1]:
-            addr = self._addr_format % (
-                self._header(addr_tuple[1] or ''),
-                addr_tuple[0] or ''
-            )
+            addr = self._addr_format % (self._header(addr_tuple[1] or ''),
+                                        addr_tuple[0] or '')
         elif addr_tuple[0]:
             addr = addr_tuple[0]
 
@@ -317,10 +320,11 @@ class Envelope(object):
             email_encoders.encode_base64(part)
 
             part_filename = os.path.basename(self._encoded(file_path))
-            part.add_header('Content-Disposition', 'attachment; filename="%s"'
-                            % part_filename)
+            part.add_header('Content-Disposition',
+                            'attachment; filename="%s"' % part_filename)
 
             self._parts.append((mimetype, part))
+
         if not data:
             with open(file_path, 'rb') as fh:
                 part_data = fh.read()
@@ -330,7 +334,6 @@ class Envelope(object):
             attach_data(part_data)
         else:
             attach_data(data)
-
 
     def send(self, *args, **kwargs):
         """Sends the envelope using a freshly created SMTP connection. *args*
