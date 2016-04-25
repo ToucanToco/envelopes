@@ -45,9 +45,6 @@ else:
 from email.header import Header
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-from email.mime.audio import MIMEAudio
-from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
 import mimetypes
 import os
