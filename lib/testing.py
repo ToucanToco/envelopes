@@ -26,8 +26,6 @@ lib.testing
 Various utilities used in testing.
 """
 
-import codecs
-import json
 import os
 import smtplib
 import tempfile
@@ -157,8 +155,8 @@ class BaseTestCase(object):
 
     @classmethod
     def tearDownClass(cls):
-        for tempfile in cls._tempfiles:
-            os.unlink(tempfile)
+        for tmpfile in cls._tempfiles:
+            os.unlink(tmpfile)
 
     def tearDown(self):
         self._unpatch_smtplib()
@@ -186,8 +184,11 @@ class BaseTestCase(object):
                 'bcc1@example.com', 'Example BCC2 <bcc2@example.com>', (
                     'bcc3@example.com', 'Example BCC3')
             ],
+            'reply_to_addr': [
+                'replyto1@example.com', 'Reply To2 <replyto2@example.com>', (
+                    'replyto3@example.com', 'Reply To3')
+            ],
             'headers': {
-                'Reply-To': 'reply-to@example.com',
                 'X-Mailer': 'Envelopes by BTHLabs'
             },
             'charset': 'utf-8'

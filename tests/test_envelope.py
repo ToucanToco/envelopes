@@ -125,7 +125,10 @@ class Test_Envelope(BaseTestCase):
         assert mime_msg['CC'] == cc_header
         assert 'BCC' not in mime_msg
 
-        assert mime_msg['Reply-To'] == msg['headers']['Reply-To']
+        reply_to_header = ('replyto1@example.com,'
+                           'Reply To2 <replyto2@example.com>,'
+                           'Reply To3 <replyto3@example.com>')
+        assert mime_msg['Reply-To'] == reply_to_header
         assert mime_msg['X-Mailer'] == msg['headers']['X-Mailer']
 
         mime_msg_parts = [part for part in mime_msg.walk()]

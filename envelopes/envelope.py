@@ -67,8 +67,10 @@ class Envelope(object):
     The following formats are supported for e-mail addresses:
 
     * ``"user@server.com"`` - just the e-mail address part as a string,
-    * ``"Some User <user@server.com>"`` - name and e-mail address parts as a string,
-    * ``("user@server.com", "Some User")`` - e-mail address and name parts as a tuple.
+    * ``"Some User <user@server.com>"`` - name and e-mail address parts as a
+      string,
+    * ``("user@server.com", "Some User")`` - e-mail address and name parts as
+      a tuple.
 
     Whenever you come to manipulate addresses feel free to use any (or all) of
     the formats above.
@@ -78,8 +80,9 @@ class Envelope(object):
     :param subject: message subject
     :param html_body: optional HTML part of the message
     :param text_body: optional plain text part of the message
-    :param cc_addr: optional single CC address or list of CC addresses
-    :param bcc_addr: optional single BCC address or list of BCC addresses
+    :param cc_addr: optional single CC address or list of addresses
+    :param bcc_addr: optional single BCC address or list of addresses
+    :param reply_to_addr: optional Reply-To address or list of addresses.
     :param headers: optional dictionary of headers
     :param charset: message charset
     """
@@ -95,15 +98,20 @@ class Envelope(object):
                  text_body=None,
                  cc_addr=None,
                  bcc_addr=None,
+                 reply_to_addr=None,
                  headers=None,
                  charset='utf-8'):
-        if to_addr:
-            if isinstance(to_addr, list):
-                self._to = to_addr
+        def translate(arg):
+            """ Creates a list from the argument. """
+            if arg:
+                return arg if isinstance(arg, list) else [arg]
             else:
-                self._to = [to_addr]
-        else:
-            self._to = []
+                return []
+
+        self._to = translate(to_addr)
+        self._cc = translate(cc_addr)
+        self._bcc = translate(bcc_addr)
+        self._reply_to = translate(reply_to_addr)
 
         self._from = from_addr
         self._subject = subject
@@ -114,22 +122,6 @@ class Envelope(object):
 
         if html_body:
             self._parts.append(('text/html', html_body, charset))
-
-        if cc_addr:
-            if isinstance(cc_addr, list):
-                self._cc = cc_addr
-            else:
-                self._cc = [cc_addr]
-        else:
-            self._cc = []
-
-        if bcc_addr:
-            if isinstance(bcc_addr, list):
-                self._bcc = bcc_addr
-            else:
-                self._bcc = [bcc_addr]
-        else:
-            self._bcc = []
 
         if headers:
             self._headers = headers
@@ -193,6 +185,19 @@ class Envelope(object):
         self._bcc = []
 
     @property
+    def reply_to_addr(self):
+        """List of Reply-To addresses."""
+        return self._reply_to
+
+    def add_reply_to_addr(self, reply_to_addr):
+        """Adds a Reply-To address."""
+        self._reply_to.append(reply_to_addr)
+
+    def clear_reply_to_addr(self):
+        """Clears list of Reply-To addresses."""
+        self._reply_to = []
+
+    @property
     def charset(self):
         """Message charset."""
         return self._charset
@@ -239,8 +244,8 @@ class Envelope(object):
                 else:
                     # these headers need special care when encoding, see:
                     #   http://tools.ietf.org/html/rfc2047#section-8
-                    # Need to break apart the name from the address if there are
-                    # non-ascii chars
+                    # Need to break apart the name from the address if there
+                    # are non-ascii chars
                     m = self.ADDR_REGEXP.match(addr)
                     if m:
                         t = (m.group(2), m.group(1))
@@ -283,6 +288,9 @@ class Envelope(object):
 
         if self._cc:
             msg['CC'] = self._addrs_to_header(self._cc)
+
+        if self._reply_to:
+            msg['Reply-To'] = self._addrs_to_header(self._reply_to)
 
         if self._headers:
             for key, value in self._headers.items():
