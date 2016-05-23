@@ -314,8 +314,7 @@ class Envelope(object):
             email_encoders.encode_base64(part)
 
             part_filename = os.path.basename(self._encoded(file_path))
-            part.add_header('Content-Disposition', 'attachment; filename="%s"'
-                            % part_filename)
+            part.add_header('Content-Disposition', 'attachment', filename=("utf-8", None, part_filename))
 
             self._parts.append((mimetype, part))
 
