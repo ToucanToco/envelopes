@@ -32,6 +32,11 @@ import io
 import os
 import sys
 
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 from envelopes.envelope import Envelope, MessageEncodeError
 from envelopes.compat import encoded
 from lib.testing import BaseTestCase
@@ -381,37 +386,44 @@ class Test_Envelope(BaseTestCase):
 
         assert envelope._parts[2][0] == 'image/jpeg'
         assert envelope._parts[2][1]['Content-Disposition'] ==\
-            'attachment; filename="%s"' % os.path.basename(_jpg)
+            "attachment; filename*=utf-8''%s" %\
+            os.path.basename(_jpg)
 
         assert envelope._parts[3][0] == 'audio/mpeg'
         assert envelope._parts[3][1]['Content-Disposition'] ==\
-            'attachment; filename="%s"' % os.path.basename(_mp3)
+            "attachment; filename*=utf-8''%s" %\
+            os.path.basename(_mp3)
 
         assert envelope._parts[4][0] == 'application/pdf'
         assert envelope._parts[4][1]['Content-Disposition'] ==\
-            'attachment; filename="%s"' % os.path.basename(_pdf)
+            "attachment; filename*=utf-8''%s" %\
+            os.path.basename(_pdf)
 
         assert envelope._parts[5][0] == 'application/octet-stream'
         assert envelope._parts[5][1]['Content-Disposition'] ==\
-            'attachment; filename="%s"' %\
-            os.path.basename(encoded(_something, 'utf-8'))
+            "attachment; filename*=utf-8''%s" %\
+            quote(os.path.basename(encoded(_something, 'utf-8')))
 
         assert envelope._parts[6][0] == 'application/octet-stream'
         assert envelope._parts[6][1]['Content-Disposition'] ==\
-            'attachment; filename="%s"' % os.path.basename(_octet)
+            "attachment; filename*=utf-8''%s" %\
+             os.path.basename(_octet)
 
         assert envelope._parts[6][0] == 'application/octet-stream'
         assert envelope._parts[6][1]['Content-Disposition'] ==\
-            'attachment; filename="%s"' % os.path.basename(_octet)
+            "attachment; filename*=utf-8''%s" %\
+             os.path.basename(_octet)
 
         assert envelope._parts[7][0] == 'text/plain'
         assert envelope._parts[7][1]['Content-Disposition'] ==\
-            'attachment; filename="%s"' % os.path.basename('file1.txt')
+            "attachment; filename*=utf-8''%s" %\
+             os.path.basename('file1.txt')
         assert envelope._parts[7][1].get_payload(decode=True) == LOREM
 
         assert envelope._parts[8][0] == 'text/plain'
         assert envelope._parts[8][1]['Content-Disposition'] ==\
-            'attachment; filename="%s"' % os.path.basename('file2.txt')
+            "attachment; filename*=utf-8''%s" %\
+             os.path.basename('file2.txt')
         assert envelope._parts[8][1].get_payload(decode=True) == LOREM
 
     def test_repr(self):
