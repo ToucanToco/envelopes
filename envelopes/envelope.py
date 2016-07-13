@@ -38,9 +38,8 @@ elif sys.version_info[0] == 3:
     def unicode(_str, _charset):
         return str(_str.encode(_charset), _charset)
 else:
-    raise RuntimeError('Unsupported Python version: %d.%d.%d' %
-                       (sys.version_info[0], sys.version_info[1],
-                        sys.version_info[2]))
+    raise RuntimeError('Unsupported Python version: %d.%d.%d' % (
+        sys.version_info[0], sys.version_info[1], sys.version_info[2]))
 
 from email.header import Header
 from email.mime.base import MIMEBase
@@ -298,7 +297,8 @@ class Envelope(object):
 
         for part in self._parts:
             type_maj, type_min = part[0].split('/')
-            if type_maj == 'text' and type_min in ('html', 'plain'):
+            if not isinstance(part[1], MIMEBase) and type_maj == 'text' and\
+               type_min in ('html', 'plain'):
                 msg.attach(MIMEText(part[1], type_min, self._charset))
             else:
                 msg.attach(part[1])
@@ -326,8 +326,9 @@ class Envelope(object):
             email_encoders.encode_base64(part)
 
             part_filename = os.path.basename(self._encoded(file_path))
-            part.add_header('Content-Disposition', 'attachment', filename=("utf-8", None, part_filename))
-
+            part.add_header('Content-Disposition',
+                            'attachment',
+                            filename=("utf-8", None, part_filename))
 
             self._parts.append((mimetype, part))
 

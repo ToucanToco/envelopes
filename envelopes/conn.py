@@ -44,6 +44,7 @@ class SMTP(object):
                  login=None,
                  password=None,
                  tls=False,
+                 smtps=False,
                  timeout=None):
         self._conn = None
         self._host = host
@@ -51,6 +52,7 @@ class SMTP(object):
         self._login = login
         self._password = password
         self._tls = tls
+        self._smtps = smtps
         self._timeout = timeout
 
     @property
@@ -71,12 +73,14 @@ class SMTP(object):
             except (AttributeError, smtplib.SMTPServerDisconnected):
                 pass
 
+            protocol = smtplib.SMTP_SSL if self._smtps else smtplib.SMTP
+
             if self._timeout:
-                self._conn = smtplib.SMTP(self._host,
-                                          self._port,
-                                          timeout=self._timeout)
+                self._conn = protocol(self._host,
+                                      self._port,
+                                      timeout=self._timeout)
             else:
-                self._conn = smtplib.SMTP(self._host, self._port)
+                self._conn = protocol(self._host, self._port)
 
         if self._tls:
             self._conn.starttls()
@@ -94,6 +98,18 @@ class SMTP(object):
                     for addr in envelope._to + envelope._cc + envelope._bcc]
 
         return self._conn.sendmail(msg['From'], to_addrs, msg.as_string())
+
+    def quit(self):
+        """Terminate the SMTP session."""
+        if self._conn:
+            try:
+                self._conn.quit()
+            except (AttributeError, smtplib.SMTPServerDisconnected):
+                pass
+            else:
+                return True
+        # SMTP session is not ready, or already disconnected
+        return False
 
 
 class GMailSMTP(SMTP):

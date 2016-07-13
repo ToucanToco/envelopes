@@ -29,6 +29,7 @@ This module contains test suite for the *SMTP* class.
 from envelopes.conn import SMTP
 from envelopes.envelope import Envelope
 from lib.testing import BaseTestCase
+from smtplib import SMTP_PORT, SMTP_SSL_PORT
 
 
 class Test_SMTPConnection(BaseTestCase):
@@ -41,6 +42,7 @@ class Test_SMTPConnection(BaseTestCase):
                     login='spam',
                     password='eggs',
                     tls=True,
+                    smtps=True,
                     timeout=10)
 
         assert conn._conn is None
@@ -49,6 +51,7 @@ class Test_SMTPConnection(BaseTestCase):
         assert conn._login == 'spam'
         assert conn._password == 'eggs'
         assert conn._tls is True
+        assert conn._smtps is True
         assert conn._timeout == 10
 
     def test_constructor_all_kwargs(self):
@@ -56,7 +59,8 @@ class Test_SMTPConnection(BaseTestCase):
                     port=587,
                     login='spam',
                     password='eggs',
-                    tls=True)
+                    tls=True,
+                    smtps=True)
 
         assert conn._conn is None
         assert conn._host == 'localhost'
@@ -64,6 +68,7 @@ class Test_SMTPConnection(BaseTestCase):
         assert conn._login == 'spam'
         assert conn._password == 'eggs'
         assert conn._tls is True
+        assert conn._smtps is True
 
     def test_connect(self):
         conn = SMTP('localhost')
@@ -94,6 +99,17 @@ class Test_SMTPConnection(BaseTestCase):
         conn._connect()
         assert conn._conn is not None
         assert len(conn._conn._call_stack.get('starttls', [])) == 1
+
+    def test_connect_smtps(self):
+        conn = SMTP('localhost', smtps=False)
+        conn._connect()
+        assert conn._conn is not None
+        assert conn._conn.default_port == SMTP_PORT
+
+        conn = SMTP('localhost', smtps=True)
+        conn._connect()
+        assert conn._conn is not None
+        assert conn._conn.default_port == SMTP_SSL_PORT
 
     def test_connect_login(self):
         conn = SMTP('localhost')

@@ -146,6 +146,12 @@ class MockSMTP(object):
         self.__append_call('quit', [], dict())
 
 
+class MockSMTPSSL(MockSMTP):
+    """A class that mocks ``smtp.SMTP_SSL``."""
+
+    default_port = smtplib.SMTP_SSL_PORT
+
+
 class BaseTestCase(object):
     """Base class for Envelopes test cases."""
 
@@ -165,9 +171,15 @@ class BaseTestCase(object):
         self._orig_smtp = smtplib.SMTP
         smtplib.SMTP = MockSMTP
 
+        self._orig_smtp_ssl = smtplib.SMTP_SSL
+        smtplib.SMTP_SSL = MockSMTPSSL
+
     def _unpatch_smtplib(self):
         if hasattr(self, '_orig_smtp'):
             smtplib.SMTP = self._orig_smtp
+
+        if hasattr(self, '_orig_smtp_ssl'):
+            smtplib.SMTP_SSL = self._orig_smtp_ssl
 
     def _dummy_message(self):
         return dict({
@@ -177,16 +189,16 @@ class BaseTestCase(object):
             'html_body': HTML_BODY,
             'text_body': TEXT_BODY,
             'cc_addr': [
-                'cc1@example.com', 'Example CC2 <cc2@example.com>', (
-                    'cc3@example.com', 'Example CC3')
+                'cc1@example.com', 'Example CC2 <cc2@example.com>',
+                ('cc3@example.com', 'Example CC3')
             ],
             'bcc_addr': [
-                'bcc1@example.com', 'Example BCC2 <bcc2@example.com>', (
-                    'bcc3@example.com', 'Example BCC3')
+                'bcc1@example.com', 'Example BCC2 <bcc2@example.com>',
+                ('bcc3@example.com', 'Example BCC3')
             ],
             'reply_to_addr': [
-                'replyto1@example.com', 'Reply To2 <replyto2@example.com>', (
-                    'replyto3@example.com', 'Reply To3')
+                'replyto1@example.com', 'Reply To2 <replyto2@example.com>',
+                ('replyto3@example.com', 'Reply To3')
             ],
             'headers': {
                 'X-Mailer': 'Envelopes by BTHLabs'
