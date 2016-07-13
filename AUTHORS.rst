@@ -14,3 +14,4 @@ Patches and Suggestions
 * `Wade Simmons <https://github.com/wadey>`_
 * `Adam Canady <https://github.com/AdamCanady>`_
 * `Mark Lewandowski <https://github.com/mlew>`_
+* `Varun Madiath <https://github.com/vamega>`_
