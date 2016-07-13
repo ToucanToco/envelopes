@@ -34,12 +34,10 @@ setup(
     name="Envelopes",
     version=envelopes.__version__,
     packages=['envelopes'],
-    test_suite='nose.collector',
     zip_safe=False,
     platforms='any',
-    tests_require=[
-        'nose',
-    ],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     author=u'Tomasz Wójcik'.encode('utf-8'),
     author_email='tomek@bthlabs.pl',
     maintainer=u'Tomasz Wójcik'.encode('utf-8'),
@@ -69,8 +67,7 @@ setup(
         "build": [
             "yapf",
             "pyflakes",
-            "nose",
-            "unittest2",
+            "pytest",
         ],
         "docs": [
             "sphinx",

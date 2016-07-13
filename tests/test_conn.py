@@ -31,6 +31,8 @@ from envelopes.envelope import Envelope
 from lib.testing import BaseTestCase
 from smtplib import SMTP_PORT, SMTP_SSL_PORT
 
+import pytest  # noqa
+
 
 class Test_SMTPConnection(BaseTestCase):
     def setUp(self):
