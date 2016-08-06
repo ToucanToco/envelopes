@@ -28,16 +28,13 @@ This module contains test suite for the *SMTP* class.
 
 from envelopes.conn import SMTP
 from envelopes.envelope import Envelope
-from lib.testing import BaseTestCase
+from lib.testing import BaseTestCase, MockSMTP, MockSMTPSSL
 from smtplib import SMTP_PORT, SMTP_SSL_PORT
 
 import pytest  # noqa
 
 
 class Test_SMTPConnection(BaseTestCase):
-    def setUp(self):
-        self._patch_smtplib()
-
     def test_constructor(self):
         conn = SMTP('localhost',
                     port=587,
@@ -72,7 +69,9 @@ class Test_SMTPConnection(BaseTestCase):
         assert conn._tls is True
         assert conn._smtps is True
 
-    def test_connect(self):
+    def test_connect(self, monkeypatch):
+        monkeypatch.setattr("smtplib.SMTP", MockSMTP)
+
         conn = SMTP('localhost')
         conn._connect()
         assert conn._conn is not None
@@ -81,7 +80,9 @@ class Test_SMTPConnection(BaseTestCase):
         conn._connect()
         assert old_conn == conn._conn
 
-    def test_connect_replace_current(self):
+    def test_connect_replace_current(self, monkeypatch):
+        monkeypatch.setattr("smtplib.SMTP", MockSMTP)
+
         conn = SMTP('localhost')
         conn._connect()
         assert conn._conn is not None
@@ -91,18 +92,23 @@ class Test_SMTPConnection(BaseTestCase):
         assert conn._conn is not None
         assert conn._conn != old_conn
 
-    def test_connect_starttls(self):
+    def test_connect_starttls(self, monkeypatch):
+        monkeypatch.setattr("smtplib.SMTP", MockSMTP)
+
         conn = SMTP('localhost', tls=False)
         conn._connect()
         assert conn._conn is not None
         assert len(conn._conn._call_stack.get('starttls', [])) == 0
-
+        
         conn = SMTP('localhost', tls=True)
         conn._connect()
         assert conn._conn is not None
         assert len(conn._conn._call_stack.get('starttls', [])) == 1
 
-    def test_connect_smtps(self):
+    def test_connect_smtps(self, monkeypatch):
+        monkeypatch.setattr("smtplib.SMTP", MockSMTP)
+        monkeypatch.setattr("smtplib.SMTP_SSL", MockSMTPSSL)
+
         conn = SMTP('localhost', smtps=False)
         conn._connect()
         assert conn._conn is not None
@@ -113,7 +119,9 @@ class Test_SMTPConnection(BaseTestCase):
         assert conn._conn is not None
         assert conn._conn.default_port == SMTP_SSL_PORT
 
-    def test_connect_login(self):
+    def test_connect_login(self, monkeypatch):
+        monkeypatch.setattr("smtplib.SMTP", MockSMTP)
+
         conn = SMTP('localhost')
         conn._connect()
         assert conn._conn is not None
@@ -139,7 +147,9 @@ class Test_SMTPConnection(BaseTestCase):
         assert call_args[0] == conn._login
         assert call_args[1] == conn._password
 
-    def test_is_connected(self):
+    def test_is_connected(self, monkeypatch):
+        monkeypatch.setattr("smtplib.SMTP", MockSMTP)
+
         conn = SMTP('localhost')
         assert conn.is_connected is False
 
@@ -147,7 +157,9 @@ class Test_SMTPConnection(BaseTestCase):
         assert conn.is_connected is True
         assert len(conn._conn._call_stack.get('noop', [])) == 1
 
-    def test_send(self):
+    def test_send(self, monkeypatch):
+        monkeypatch.setattr("smtplib.SMTP", MockSMTP)
+
         conn = SMTP('localhost')
 
         msg = self._dummy_message()

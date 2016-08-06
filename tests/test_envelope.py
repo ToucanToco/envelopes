@@ -39,14 +39,14 @@ except ImportError:
 
 from envelopes.envelope import Envelope, MessageEncodeError
 from envelopes.compat import encoded
-from lib.testing import BaseTestCase
+from lib.testing import BaseTestCase, MockSMTP
 
 LOREM = 'Lorem ipsum'.encode('utf-8')
 
 
 class Test_Envelope(BaseTestCase):
-    def setUp(self):
-        self._patch_smtplib()
+    # def setUp(self):
+    #     self._patch_smtplib()
 
     def test_constructor(self):
         msg = self._dummy_message()
@@ -233,7 +233,8 @@ class Test_Envelope(BaseTestCase):
         assert html_part.get_payload(
             decode=True) == msg['html_body'].encode('utf-8')
 
-    def test_send(self):
+    def test_send(self, monkeypatch):
+        monkeypatch.setattr("smtplib.SMTP", MockSMTP)
         envelope = Envelope(from_addr='spam@example.com',
                             to_addr='eggs@example.com',
                             subject='Testing envelopes!',
@@ -353,24 +354,24 @@ class Test_Envelope(BaseTestCase):
         envelope.clear_headers()
         assert envelope.headers == {}
 
-    def test_add_attachment(self):
+    def test_add_attachment(self, tmpdir):
         msg = self._dummy_message()
         envelope = Envelope(**msg)
 
-        _jpg = self._tempfile(suffix='.jpg')
-        envelope.add_attachment(_jpg)
+        _jpg = tmpdir.join('test_file.jpg').ensure()
+        envelope.add_attachment(_jpg.strpath)
 
-        _mp3 = self._tempfile(suffix='.mp3')
-        envelope.add_attachment(_mp3)
+        _mp3 = tmpdir.join('test_file.mp3').ensure()
+        envelope.add_attachment(_mp3.strpath)
 
-        _pdf = self._tempfile(suffix='.pdf')
-        envelope.add_attachment(_pdf)
+        _pdf = tmpdir.join('test_file.pdf').ensure()
+        envelope.add_attachment(_pdf.strpath)
 
-        _something = self._tempfile(suffix='.something', prefix=u'ęóąśłżźćń')
-        envelope.add_attachment(_something)
+        _something = tmpdir.join(u'ęóąśłżźćń.something').ensure()
+        envelope.add_attachment(_something.strpath)
 
-        _octet = self._tempfile(suffix='.txt')
-        envelope.add_attachment(_octet, mimetype='application/octet-stream')
+        _octet = tmpdir.join('test_file.txt').ensure()
+        envelope.add_attachment(_octet.strpath, mimetype='application/octet-stream')
 
         # Attach from string
         envelope.add_attachment('file1.txt', data=LOREM, mimetype='text/plain')
@@ -387,32 +388,32 @@ class Test_Envelope(BaseTestCase):
         assert envelope._parts[2][0] == 'image/jpeg'
         assert envelope._parts[2][1]['Content-Disposition'] ==\
             "attachment; filename*=utf-8''%s" %\
-            os.path.basename(_jpg)
+            _jpg.basename
 
         assert envelope._parts[3][0] == 'audio/mpeg'
         assert envelope._parts[3][1]['Content-Disposition'] ==\
             "attachment; filename*=utf-8''%s" %\
-            os.path.basename(_mp3)
+            _mp3.basename
 
         assert envelope._parts[4][0] == 'application/pdf'
         assert envelope._parts[4][1]['Content-Disposition'] ==\
             "attachment; filename*=utf-8''%s" %\
-            os.path.basename(_pdf)
+            _pdf.basename
 
         assert envelope._parts[5][0] == 'application/octet-stream'
         assert envelope._parts[5][1]['Content-Disposition'] ==\
             "attachment; filename*=utf-8''%s" %\
-            quote(os.path.basename(encoded(_something, 'utf-8')))
+            quote(encoded(_something.basename, 'utf-8'))
 
         assert envelope._parts[6][0] == 'application/octet-stream'
         assert envelope._parts[6][1]['Content-Disposition'] ==\
             "attachment; filename*=utf-8''%s" %\
-             os.path.basename(_octet)
+            _octet.basename
 
         assert envelope._parts[6][0] == 'application/octet-stream'
         assert envelope._parts[6][1]['Content-Disposition'] ==\
             "attachment; filename*=utf-8''%s" %\
-             os.path.basename(_octet)
+            _octet.basename
 
         assert envelope._parts[7][0] == 'text/plain'
         assert envelope._parts[7][1]['Content-Disposition'] ==\
