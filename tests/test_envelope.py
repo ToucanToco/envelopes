@@ -45,9 +45,6 @@ LOREM = 'Lorem ipsum'.encode('utf-8')
 
 
 class Test_Envelope(BaseTestCase):
-    # def setUp(self):
-    #     self._patch_smtplib()
-
     def test_constructor(self):
         msg = self._dummy_message()
         envelope = Envelope(**msg)

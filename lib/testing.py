@@ -155,32 +155,6 @@ class MockSMTPSSL(MockSMTP):
 class BaseTestCase(object):
     """Base class for Envelopes test cases."""
 
-    @classmethod
-    def setUpClass(cls):
-        cls._tempfiles = []
-
-    @classmethod
-    def tearDownClass(cls):
-        for tmpfile in cls._tempfiles:
-            os.unlink(tmpfile)
-
-    def tearDown(self):
-        self._unpatch_smtplib()
-
-    def _patch_smtplib(self):
-        self._orig_smtp = smtplib.SMTP
-        smtplib.SMTP = MockSMTP
-
-        self._orig_smtp_ssl = smtplib.SMTP_SSL
-        smtplib.SMTP_SSL = MockSMTPSSL
-
-    def _unpatch_smtplib(self):
-        if hasattr(self, '_orig_smtp'):
-            smtplib.SMTP = self._orig_smtp
-
-        if hasattr(self, '_orig_smtp_ssl'):
-            smtplib.SMTP_SSL = self._orig_smtp_ssl
-
     def _dummy_message(self):
         return dict({
             'to_addr': ('to@example.com', 'Example To'),
@@ -205,10 +179,3 @@ class BaseTestCase(object):
             },
             'charset': 'utf-8'
         })
-
-    def _tempfile(self, **kwargs):
-        fd, path = tempfile.mkstemp(**kwargs)
-        os.close(fd)
-        self._tempfiles.append(path)
-
-        return path

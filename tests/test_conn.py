@@ -99,7 +99,7 @@ class Test_SMTPConnection(BaseTestCase):
         conn._connect()
         assert conn._conn is not None
         assert len(conn._conn._call_stack.get('starttls', [])) == 0
-        
+
         conn = SMTP('localhost', tls=True)
         conn._connect()
         assert conn._conn is not None
