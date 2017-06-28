@@ -31,7 +31,7 @@ long_description = desc_file.read()
 desc_file.close()
 
 setup(
-    name="Envelopes",
+    name="tctc_envelopes",
     version=envelopes.__version__,
     packages=['envelopes'],
     test_suite='nose.collector',
